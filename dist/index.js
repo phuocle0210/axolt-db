@@ -235,8 +235,8 @@ class AxoltDatabaseParent {
     whereArray(field, compare, values, condition = "AND") {
         values.forEach(value => {
             const wh = this.store.sql.includes('WHERE') ? condition : 'WHERE';
-            this.store.sql += ` ${wh} \`${field}\` ${compare} ${compare === "LIKE" ? "%?%" : "?"}`;
-            this.store.values.push(value);
+            this.store.sql += ` ${wh} \`${field}\` ${compare} ?`;
+            this.store.values.push(compare === "LIKE" ? `%${value}%` : value);
         });
         return this;
     }
