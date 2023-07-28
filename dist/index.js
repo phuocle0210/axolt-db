@@ -129,22 +129,24 @@ class AxoltDatabaseParent {
         return response;
     }
     async insertMany(data) {
+        if (data.length === 0)
+            return { header: null, isSuccess: false };
         this.store.sql = `INSERT INTO _TABLE_(_FIELDS_) VALUES(_VALUES_)`;
         const values = data.map(i => `(${Array(Object.keys(i).length).fill("?").join(", ")})`).join(", ");
         this.store.sql = this.store.sql
             .replace("_FIELDS_", Object.keys(data[0]).map(name => `\`${name}\``).join(", "))
             .replace("(_VALUES_)", values);
-        const keySecure = `[SPLIT:::${Math.random()}] `;
         for (const result of data) {
             const keys = Object.keys(result);
-            this.store.values.push(keys.map(key => result[key]).join(keySecure));
+            for (const key of keys)
+                this.store.values.push(result[key]);
         }
-        this.store.values = this.store.values.flatMap(value => value.split(keySecure));
         this.setTable();
         const response = await this.query()
             .then(data => (data.data))
             .then(async (data) => ({
-            header: data
+            header: data,
+            isSuccess: true
         }));
         return response;
     }
@@ -163,9 +165,10 @@ class AxoltDatabaseParent {
             const response = await this.query()
                 .then(data => (data.data))
                 .then(async (data) => ({
-                header: data
+                header: data,
+                isSuccess: true
             }));
-            return response.header.affectedRows > 0;
+            return response.header && response.header.affectedRows > 0;
         }
         catch (_) {
             return false;
@@ -183,7 +186,7 @@ class AxoltDatabaseParent {
             .then(async (data) => ({
             header: data
         }));
-        return response.header.affectedRows > 0;
+        return response.header && response.header.affectedRows > 0;
     }
     async firstOrCreate(find, insert) {
         this.store.sql = this.store.sqlDefault;

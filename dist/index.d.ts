@@ -32,8 +32,9 @@ export interface IAxoltResult<T> {
     empty: boolean;
 }
 export interface IAxoltHeader<T> {
-    header: ResultSetHeader;
+    header: ResultSetHeader | null;
     data?: T;
+    isSuccess: boolean;
 }
 export interface IPaginate<T> extends IAxoltResult<T> {
     next: number | null;
@@ -54,8 +55,8 @@ declare abstract class AxoltDatabaseParent<IAxolt> {
     take(number: number): this;
     insert(data: IAxoltNotFunc<IAxolt>): Promise<IAxoltHeader<IAxolt>>;
     insertMany(data: IAxoltNotFunc<IAxolt>[]): Promise<IAxoltHeader<IAxolt>>;
-    update(data: IModelOption<IAxolt>, all?: boolean): Promise<boolean>;
-    delete(all?: boolean): Promise<boolean>;
+    update(data: IModelOption<IAxolt>, all?: boolean): Promise<boolean | null>;
+    delete(all?: boolean): Promise<boolean | null>;
     firstOrCreate(find: IAxoltNotFunc<IModelOption<IAxolt>>, insert?: IAxoltNotFunc<IAxolt>): Promise<IGetOrInsert<IAxolt>>;
     firstOrNew(find: IAxoltNotFunc<IModelOption<IAxolt>>, insert?: IAxoltNotFunc<IAxolt>): Promise<IGetOrNew<IAxolt>>;
     orderBy(field: string, order?: "DESC" | "ASC"): this;
