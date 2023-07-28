@@ -49,6 +49,7 @@ class AxoltDatabaseParent {
                             error && rej(error);
                             res({ data: result, empty: result?.length !== undefined ? result.length === 0 : false });
                         });
+                        _connection.release();
                     }
                     catch (ex) {
                         rej(ex);
